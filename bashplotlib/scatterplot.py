@@ -9,6 +9,9 @@ from __future__ import print_function
 import csv
 import sys
 import optparse
+from email.policy import default
+from pydoc import describe
+
 from .utils.helpers import *
 from .utils.commandhelp import scatter
 
@@ -28,13 +31,17 @@ def get_scale(series, is_y=False, steps=20):
     return scaled_series
 
 
-def _plot_scatter(xs, ys, size, pch, colour, title, cs):
+def _plot_scatter(xs, ys, size, pch, colour, title, title_align, cs, xtitle, ytitle):
     plotted = set()
+    width = len(get_scale(xs, False, size))
 
     if title:
-        print(box_text(title, 2 * (len(get_scale(xs, False, size)) + 1)))
+        print(box_text(title, title_align, 2 * (width + 1)))
 
-    print("-" * (2 * (len(get_scale(xs, False, size)) + 2)))
+    if ytitle:
+        print("y: " + ytitle)
+
+    print("-" * (2 * (width + 2)))
     for y in get_scale(ys, True, size):
         print("|", end=' ')
         for x in get_scale(xs, False, size):
@@ -47,9 +54,12 @@ def _plot_scatter(xs, ys, size, pch, colour, title, cs):
                         colour = cs[i]
             printcolour(point + " ", True, colour)
         print(" |")
-    print("-" * (2 * (len(get_scale(xs, False, size)) + 2)))
+    print("-" * (2 * (width + 2)))
 
-def plot_scatter(f, xs, ys, size, pch, colour, title):
+    if xtitle:
+        print(str("x: " + xtitle).rjust(width))
+
+def plot_scatter(f, xs, ys, size, pch, colour, title, title_align="center", xtitle="", ytitle=""):
     """
     Form a complex number.
 
@@ -61,6 +71,9 @@ def plot_scatter(f, xs, ys, size, pch, colour, title):
         pch -- shape of the points (any character)
         colour -- colour of the points
         title -- title of the plot
+        title_align -- alignment for the title of the plot
+        xtitle -- title for x-axis
+        ytitle -- title for y-axis
     """
     cs = None
     if f:
@@ -81,7 +94,7 @@ def plot_scatter(f, xs, ys, size, pch, colour, title):
         with open(ys) as fh:
             ys = [float(str(row).strip()) for row in fh]
 
-    _plot_scatter(xs, ys, size, pch, colour, title, cs)
+    _plot_scatter(xs, ys, size, pch, colour, title, title_align, cs, xtitle, ytitle)
     
 
 
@@ -97,6 +110,8 @@ def main():
     parser.add_option('-p', '--pch', help='shape of point', default="x", dest='pch')
     parser.add_option('-c', '--colour', help='colour of the plot (%s)' %
                       colour_help, default='default', dest='colour')
+    parser.add_option('--xtitle', help='title for x-axis of graph', default='', dest='xtitle')
+    parser.add_option('--ytitle', help='title for y-axis of graph', default='', dest='ytitle')
 
     opts, args = parser.parse_args()
 
