@@ -34,6 +34,7 @@ def get_scale(series, is_y=False, steps=20):
 def _plot_scatter(xs, ys, size, pch, colour, title, title_align, cs, xtitle, ytitle):
     plotted = set()
     width = len(get_scale(xs, False, size))
+    xscale = get_scale(xs,False,size)
 
     if title:
         print(box_text(title, title_align, 2 * (width + 1)))
@@ -42,17 +43,32 @@ def _plot_scatter(xs, ys, size, pch, colour, title, title_align, cs, xtitle, yti
         print("y: " + ytitle)
 
     print("-" * (2 * (width + 2)))
-    for y in get_scale(ys, True, size):
+    for y in get_scale(ys, True, size):    #y axis loop
         print("|", end=' ')
-        for x in get_scale(xs, False, size):
+
+        for x in get_scale(xs, False, size): #x axis loop
             point = " "
             for (i, (xp, yp)) in enumerate(zip(xs, ys)):
                 if xp <= x and yp >= y and (xp, yp) not in plotted:
                     point = pch
-                    plotted.add((xp, yp))
+                    plotted.add((xp, yp))       # add the point on the graph
                     if cs:
                         colour = cs[i]
-            printcolour(point + " ", True, colour)
+            #printcolour(point + " ", True, colour)
+
+            if point == pch:
+                printcolour(point + " ", True, colour)
+            else:
+                if x == 0  and y == 0:
+                    printcolour("o ", True, colour)
+                elif y == 0:
+                    printcolour("- ", True, colour)
+                elif x == 0:
+                    printcolour("| ", True, colour)
+                else:
+                    printcolour(point + " ", True, colour)
+
+
         print(" |")
     print("-" * (2 * (width + 2)))
 
